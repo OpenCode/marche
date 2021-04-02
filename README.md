@@ -13,7 +13,7 @@ Use virtualenv to separate MaRChE environment from system one.
 ```
 $ git clone git@github.com:openforceit/marche.git
 $ cd marche
-$ python3 -m venv venv
+$ virtualenv -p python3 venv
 $ source venv/bin/activate
 (venv)$ python3 -m pip install -r requirements.txt
 ```
