@@ -1,8 +1,8 @@
-# Copyright 2021 - Francesco Apruzzese <cescoap@gmail.com>
-# License GPL-3.0 or later (http://www.gnu.org/licenses/gpl.html).
+# Copyright 2021 Francesco Apruzzese <cescoap@gmail.com>
+# License GPL-3.0 or later (http://www.gnu.org/licenses/gpl-3.0.html).
 
-from importlib import import_module
-from os import listdir
+import importlib
+from os import listdir, getcwd, chdir
 from os.path import join
 import click
 import yaml
@@ -11,7 +11,6 @@ from base64 import b64decode
 from datetime import datetime
 
 
-SCRIPTS_PATH = 'scripts'
 CLI_DOC_KEY = 'description'
 
 
@@ -140,6 +139,14 @@ def get_config(path):
         return data
 
 
+def module_from_file(module_name, file_path):
+    marche_py_path = join(file_path, 'marche.py')
+    spec = importlib.util.spec_from_file_location(module_name, marche_py_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 @click.group()
 def cli():
     pass
@@ -147,10 +154,10 @@ def cli():
 
 @cli.command()
 def available_scripts():
-    scripts_path = listdir(SCRIPTS_PATH)
+    scripts_path = listdir('.')
     for script_path in scripts_path:
         response = script_path
-        config_data = get_config(join(SCRIPTS_PATH, script_path))
+        config_data = get_config(join('.', script_path))
         if config_data.get(CLI_DOC_KEY, False):
             response = f'{response} - {config_data[CLI_DOC_KEY]}'
         click.echo(response)
@@ -165,10 +172,10 @@ def available_scripts():
 def script(name, token, collect_pr, bar, script_args):
     # Dinamically import sub-script
     # TODO: Check if script exists or raise an error
-    script_module = import_module(f'scripts.{name}.marche')
+    script_path = join(getcwd(), name)
+    script_module = module_from_file('marche', script_path)
     marche_fnct = script_module.marche
     # Get configurations
-    script_path = join(SCRIPTS_PATH, name)
     config_data = get_config(script_path)
     if collect_pr:
         prs = {}
@@ -193,5 +200,5 @@ def script(name, token, collect_pr, bar, script_args):
                 click.echo(f'\tPR #{pr.number} -> {pr.html_url}')
 
 
-if __name__ == '__main__':
+def entrypoint():
     cli()
