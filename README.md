@@ -4,6 +4,8 @@ MaRChE
 **MA**ssive **R**epository **CH**anges for **E**veryone
 -------------------------------------------------------
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 MaRChE is an addons based software created to apply recursive changes on a lot of repositories with only one (reusable) script and one (reusable) configuration file.
 
 # Installation
