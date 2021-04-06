@@ -11,19 +11,18 @@ from base64 import b64decode
 from datetime import datetime
 
 
-CLI_DOC_KEY = 'description'
+CLI_DOC_KEY = "description"
 
 
 class Repo:
-
     def __init__(self, script_name, repo_data, token):
         gh = Github(token)
         # TODO: Separate import based on marche.yaml version
         self._script_name = script_name
-        self.name = repo_data['name']
+        self.name = repo_data["name"]
         self.repo = gh.get_repo(self.name)
-        self.source_branch = str(repo_data['source_branch'])
-        self.target_branch = str(repo_data['target_branch'])
+        self.source_branch = str(repo_data["source_branch"])
+        self.target_branch = str(repo_data["target_branch"])
         self._collect_pr = False
         self._collected_pr = []
 
@@ -50,8 +49,9 @@ class Repo:
         if not existing_branch:
             source_branch = self.repo.get_branch(self.source_branch)
             existing_branch = self.repo.create_git_ref(
-                ref=f'refs/heads/{self.target_branch}',
-                sha=source_branch.commit.sha)
+                ref=f"refs/heads/{self.target_branch}",
+                sha=source_branch.commit.sha,
+            )
         existing_branch = self.branch_exists(branch)
         return existing_branch
 
@@ -59,8 +59,8 @@ class Repo:
         target_branch = self._create_or_get_branch(self.target_branch)
         # Create remote file
         commit = self.repo.create_file(
-            file_name, commit_message, file_content,
-            branch=target_branch.name)
+            file_name, commit_message, file_content, branch=target_branch.name
+        )
         return commit
 
     def read_file(self, file_name):
@@ -70,7 +70,8 @@ class Repo:
 
     def read_local_file(self, file_name):
         file_to_read = open(
-            join('.', 'scripts', self._script_name, 'resources', file_name))
+            join(".", "scripts", self._script_name, "resources", file_name)
+        )
         file_content = file_to_read.read()
         file_to_read.close()
         return file_content
@@ -80,8 +81,12 @@ class Repo:
         # Update remote file
         contents = self.repo.get_contents(file_name, ref=target_branch.name)
         commit = self.repo.update_file(
-            contents.path, commit_message, file_content, contents.sha,
-            branch=target_branch.name)
+            contents.path,
+            commit_message,
+            file_content,
+            contents.sha,
+            branch=target_branch.name,
+        )
         return commit
 
     def delete_file(self, file_name, commit_message):
@@ -89,8 +94,11 @@ class Repo:
         # Create remote file
         contents = self.repo.get_contents(file_name, ref=target_branch.name)
         self.repo.delete_file(
-            contents.path, commit_message, contents.sha,
-            branch=target_branch.name)
+            contents.path,
+            commit_message,
+            contents.sha,
+            branch=target_branch.name,
+        )
 
     def create_pr(self, title, body, reviewers=False):
         target_branch = self._create_or_get_branch(self.target_branch)
@@ -99,7 +107,7 @@ class Repo:
             body=body,
             head=target_branch.name,
             base=self.source_branch,
-            )
+        )
         if reviewers:
             pr.create_review_request(reviewers)
         if self.collect_pr:
@@ -107,40 +115,31 @@ class Repo:
         return pr
 
     def _rich_log_message(self, message):
-        now = datetime.now().strftime('%Y-%M-%d %H:%M:%S.%s')
-        return f'[{now}] [{self.name}] {message}'
+        now = datetime.now().strftime("%Y-%M-%d %H:%M:%S.%s")
+        return f"[{now}] [{self.name}] {message}"
 
     def log_info(self, message):
         click.echo(self._rich_log_message(message))
 
     def log_warning(self, message):
-        click.secho(
-            self._rich_log_message(message),
-            fg='red',
-            )
+        click.secho(self._rich_log_message(message), fg="red")
 
     def log_debug(self, message):
-        click.secho(
-            self._rich_log_message(message),
-            fg='yellow',
-            )
+        click.secho(self._rich_log_message(message), fg="yellow")
 
     def log_ok(self, message):
-        click.secho(
-            self._rich_log_message(message),
-            fg='green',
-            )
+        click.secho(self._rich_log_message(message), fg="green")
 
 
 def get_config(path):
     # TODO: Check if file exists or raise an error
-    with open(join(path, 'marche.yaml')) as config_yaml:
+    with open(join(path, "marche.yaml")) as config_yaml:
         data = yaml.load(config_yaml, Loader=yaml.FullLoader)
         return data
 
 
 def module_from_file(module_name, file_path):
-    marche_py_path = join(file_path, 'marche.py')
+    marche_py_path = join(file_path, "marche.py")
     spec = importlib.util.spec_from_file_location(module_name, marche_py_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -154,33 +153,33 @@ def cli():
 
 @cli.command()
 def available_scripts():
-    scripts_path = listdir('.')
+    scripts_path = listdir(".")
     for script_path in scripts_path:
         response = script_path
-        config_data = get_config(join('.', script_path))
+        config_data = get_config(join(".", script_path))
         if config_data.get(CLI_DOC_KEY, False):
-            response = f'{response} - {config_data[CLI_DOC_KEY]}'
+            response = f"{response} - {config_data[CLI_DOC_KEY]}"
         click.echo(response)
 
 
 @cli.command()
-@click.option('-t', '--token')
-@click.option('--collect-pr/--no-collect-pr', default=True)
-@click.option('--bar/--no-bar', default=True)
-@click.argument('name')
-@click.argument('script_args', nargs=-1)
+@click.option("-t", "--token")
+@click.option("--collect-pr/--no-collect-pr", default=True)
+@click.option("--bar/--no-bar", default=True)
+@click.argument("name")
+@click.argument("script_args", nargs=-1)
 def script(name, token, collect_pr, bar, script_args):
     # Dinamically import sub-script
     # TODO: Check if script exists or raise an error
     script_path = join(getcwd(), name)
-    script_module = module_from_file('marche', script_path)
+    script_module = module_from_file("marche", script_path)
     marche_fnct = script_module.marche
     # Get configurations
     config_data = get_config(script_path)
     if collect_pr:
         prs = {}
     # Execute main function
-    repos = config_data.get('repo', [])
+    repos = config_data.get("repo", [])
     with click.progressbar(length=len(repos), width=0) as progressbar:
         for repo_data in repos:
             repo = Repo(name, repo_data, token)
@@ -195,9 +194,9 @@ def script(name, token, collect_pr, bar, script_args):
     # Show all the collected pr
     if collect_pr:
         for repo_name in prs:
-            click.echo(f'{repo_name} PRs list:')
+            click.echo(f"{repo_name} PRs list:")
             for pr in prs[repo_name]:
-                click.echo(f'\tPR #{pr.number} -> {pr.html_url}')
+                click.echo(f"\tPR #{pr.number} -> {pr.html_url}")
 
 
 def entrypoint():
