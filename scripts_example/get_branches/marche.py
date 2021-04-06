@@ -3,9 +3,9 @@
 
 
 def marche(repo, *args, **kwargs):
-    repo.log_info(f'Repo: {repo.name}')
+    repo.log_info(f"Repo: {repo.name}")
     branches = list(repo.repo.get_branches())
-    repo.log_info(f'    Branches')
+    repo.log_info(f"    Branches")
     branches_name = [b.name for b in branches]
     for branch_name in branches_name:
-        repo.log_info(f'    - {branch_name}')
+        repo.log_info(f"    - {branch_name}")
