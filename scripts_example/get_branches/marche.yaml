@@ -1,0 +1,12 @@
+version: 1
+description: Show all branches of repos
+repo:
+  - name: opencode/marche
+    source_branch:
+    target_branch:
+  - name: opencode/solan
+    source_branch:
+    target_branch:
+comments:
+  Example plugin for MaRChE
+  Use as base for you code if you want
