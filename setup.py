@@ -4,10 +4,16 @@
 from setuptools import setup
 
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+
 setup(
     name="marche",
-    version="0.1.0",
+    version="0.1.2",
     description="MaRChE",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/OpenCode/marche",
     author="Francesco Apruzzese",
     author_email="cescoap@gmail.com",
