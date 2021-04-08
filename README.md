@@ -10,6 +10,8 @@ MaRChE is an addons based software created to apply recursive changes on a lot o
 
 # Installation
 
+## From source
+
 Use virtualenv to separate MaRChE environment from system one.
 
 ```
@@ -20,11 +22,20 @@ $ source venv/bin/activate
 (venv)$ python3 -m pip install -r requirements.txt
 ```
 
+## From pypi
+
+```
+$ pip3 install marche
+```
+
 # Usage
 
 ## Get scripts list
 
-`(venv)$ python3 marche.py available-scripts`
+```
+$ cd YOUR_ADDONS_PATH
+$ marche available-scripts
+```
 
 A list of scripts (folders in `scripts` path) will be showed.
 
@@ -247,3 +258,7 @@ Show a success message (green text) on log default system
 ```
     repo.log_ok('MaRChE is cool!')
 ```
+
+# Support
+
+<a href="https://www.buymeacoffee.com/scapigliato" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/arial-black.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
