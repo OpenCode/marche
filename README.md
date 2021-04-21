@@ -15,7 +15,7 @@ MaRChE is an addons based software created to apply recursive changes on a lot o
 Use virtualenv to separate MaRChE environment from system one.
 
 ```
-$ git clone git@github.com:openforceit/marche.git
+$ git clone git@github.com:OpenCode/marche.git
 $ cd marche
 $ virtualenv -p python3 venv
 $ source venv/bin/activate
